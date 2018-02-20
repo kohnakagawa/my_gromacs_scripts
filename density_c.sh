@@ -3,11 +3,11 @@
 export GMX_MAXBACKUP=-1
 
 function print_usage() {
-    echo "${0} root_dir lipid_name"
+    echo "${0} root_dir lipid_name sn1_n sn2_n"
     exit
 }
 
-if [ "$#" -ne 2 ]; then
+if [ "$#" -ne 4 ]; then
     print_usage "${0}"
 fi
 
@@ -15,6 +15,8 @@ fi
 readonly IN_DIR="${1}"
 readonly OUT_DIR="${1}/density"
 readonly LIPID="${2}"
+readonly SN1_N="${3}"
+readonly SN2_N="${4}"
 
 # create output directory
 if [ ! -e "${OUT_DIR}" ]; then
@@ -73,10 +75,10 @@ EOF
     wait
 }
 
-sopc_cs=(18 18)
-make_carbon_ndx "(${sopc_cs[*]})" "SOPC" "TSPC"
-calc_density "(${sopc_cs[*]})" "SOPC"
+lipid_cs=("${SN1_N}" "${SN2_N}")
+make_carbon_ndx "(${lipid_cs[*]})" "${LIPID}" "TSPC"
+calc_density "(${lipid_cs[*]})" "${LIPID}"
 
 tspc_cs=(32 18)
-make_carbon_ndx "(${tspc_cs[*]})" "TSPC" "SOPC"
+make_carbon_ndx "(${tspc_cs[*]})" "TSPC" "${LIPID}"
 calc_density "(${tspc_cs[*]})" "TSPC"
