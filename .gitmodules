@@ -1,0 +1,3 @@
+[submodule "splitleafs"]
+	path = splitleafs
+	url = https://github.com/jbarnoud/splitleafs.git
