@@ -17,7 +17,7 @@ def sn_to_index(sn_name):
 def calc_scd(cs, hs, cn, box):
     c2d = hs.positions - cs.positions
     c2d -= box * np.round(c2d / box)
-    
+
     c2d_norm = np.sqrt(np.sum(np.power(c2d, 2), axis=1))
     c2d_norm.shape = (len(c2d_norm), 1)
     c2d = c2d / c2d_norm
@@ -48,7 +48,7 @@ def selstr_hydrogens(univ, lipid, beg, end, sn, h_ind):
         'Y' if sn == "sn1" else 'S',
         'Z' if sn == "sn1" else 'T',
     )
-    
+
     sn = sn_to_index(sn)
     h_suffix = h_suffixes[h_ind]
 
@@ -81,7 +81,7 @@ def main(input_dir, lipid, cs_begs, cs_ends):
     for (i, sn) in enumerate(sns):
         cns = cs_ends[i] - cs_begs[i] + 1
         scd_sn = np.zeros(cns)
-        
+
         cs  = univ.select_atoms(selstr_carbons(lipid, cs_begs[i], cs_ends[i], sn))
         h0s = univ.select_atoms(selstr_hydrogens(univ, lipid, cs_begs[i], cs_ends[i], sn, 0))
         h1s = univ.select_atoms(selstr_hydrogens(univ, lipid, cs_begs[i], cs_ends[i], sn, 1))
@@ -115,6 +115,6 @@ if __name__ == "__main__":
     parser.add_argument('-e1', '--esn1', dest='esn1', required=True, help="sn1", type=int)
     parser.add_argument('-b2', '--bsn2', dest='bsn2', required=True, help="sn2", type=int)
     parser.add_argument('-e2', '--esn2', dest='esn2', required=True, help="sn2", type=int)
-    
+
     args = parser.parse_args()
     main(args.input_dir, args.lipid, (args.bsn1, args.bsn2), (args.esn1, args.esn2))
