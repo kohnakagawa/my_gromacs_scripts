@@ -1,0 +1,5 @@
+#+STARTUP: indent
+* Gromacs scripts
+- Several scripts for my research.
+* Requirements
+- [[https://github.com/MDAnalysis/mdanalysis][MDAnalysis]]
