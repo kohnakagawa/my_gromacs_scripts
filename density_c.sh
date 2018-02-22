@@ -38,8 +38,7 @@ function make_carbon_ndx() {
             index="${OUT_DIR}/${lipid0}_c${ci}${j}.ndx"
             selstr="a C${ci}${j} & r ${lipid0}"
             gmx make_ndx -f "${IN_DIR}/step7_1.gro" -o ${index} <<EOF
-del 0-4
-r ${lipid0} | r ${lipid1}
+del 1-4
 ${selstr}
 q
 EOF
