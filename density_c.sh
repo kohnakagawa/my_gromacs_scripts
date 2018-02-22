@@ -7,7 +7,7 @@ function print_usage() {
     exit
 }
 
-if [ "$#" -ne 5 ]; then
+if [ "$#" -ne 6 ]; then
     print_usage "${0}"
 fi
 
@@ -18,6 +18,7 @@ readonly LIPID="${2}"
 readonly SN1_N="${3}"
 readonly SN2_N="${4}"
 readonly TSPC_SYM="${5}"
+readonly TSPC_EXIST="${6}"
 
 # create output directory
 if [ ! -e "${OUT_DIR}" ]; then
@@ -95,6 +96,8 @@ lipid_cs=("${SN1_N}" "${SN2_N}")
 make_carbon_ndx "(${lipid_cs[*]})" "${LIPID}" "TSPC" true true
 calc_density "(${lipid_cs[*]})" "${LIPID}" true true
 
-tspc_cs=(32 18)
-make_carbon_ndx "(${tspc_cs[*]})" "TSPC" "${LIPID}" true "${TSPC_SYM}"
-calc_density "(${tspc_cs[*]})" "TSPC" true "${TSPC_SYM}"
+if ${TSPC_EXIST}; then
+    tspc_cs=(32 18)
+    make_carbon_ndx "(${tspc_cs[*]})" "TSPC" "${LIPID}" true "${TSPC_SYM}"
+    calc_density "(${tspc_cs[*]})" "TSPC" true "${TSPC_SYM}"
+fi
