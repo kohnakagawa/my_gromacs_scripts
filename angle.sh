@@ -2,7 +2,7 @@
 
 export GMX_MAXBACKUP=-1
 
-function print_usage {
+function print_usage() {
     echo "${0} root_dir"
     exit
 }

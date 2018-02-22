@@ -41,7 +41,7 @@ do
     xtcs="${xtcs} ${out_xtc}"
 done
 
-sleep 10
+wait
 
 # merge lipid trajectory
 gmx trjcat -f ${xtcs} -o "${OUT_DIR}/merged_single.xtc"
