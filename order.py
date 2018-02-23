@@ -14,6 +14,18 @@ def sn_to_index(sn_name):
         sys.exit(1)
 
 
+def get_bilayer_center(univ):
+    lipid_atoms = univ.select_atoms("name P")
+    return lipid_atoms.center_of_geometry()[2]
+
+
+def get_splitted_bilayer_res(univ, lipid):
+    bcenter = get_bilayer_center(univ)
+    upper_res_ids = ["resid " + str(rid) for rid in univ.select_atoms("resname {} and name P and prop z >  {}".format(lipid, bcenter)).resids]
+    lower_res_ids = ["resid " + str(rid) for rid in univ.select_atoms("resname {} and name P and prop z <= {}".format(lipid, bcenter)).resids]
+    return " or ".join(upper_res_ids), " or ".join(lower_res_ids)
+
+
 def calc_scd(cs, hs, cn, box):
     c2d = hs.positions - cs.positions
     c2d -= box * np.round(c2d / box)
@@ -29,12 +41,9 @@ def calc_scd(cs, hs, cn, box):
     return order
 
 
-def selstr_carbons(lipid, beg, end, sn):
+def selstr_carbons(beg, end, sn):
     sn = sn_to_index(sn)
-    lipid = "resname {}".format(lipid)
-    carbons = " or ".join(["name C{}{}".format(sn, i) for i in range(beg, end+1)])
-    selstr = "{} and ({})".format(lipid, carbons)
-    return selstr
+    return " or ".join(["name C{}{}".format(sn, i) for i in range(beg, end+1)])
 
 
 def h_exits(univ, lipid, hydro):
@@ -63,12 +72,12 @@ def selstr_hydrogens(univ, lipid, beg, end, sn, h_ind):
         else:
             hydrogens.append("name H{}{}".format(i, h_suffixes[0]))
 
-    return "{} and ({})".format(lipid, " or ".join(hydrogens))
+    return " or ".join(hydrogens)
 
 
 def main(input_dir, lipid, cs_begs, cs_ends):
-    trr_file = os.path.join(input_dir, "merged_trr", "merged_tot.trr")
-    # trr_file = os.path.join(input_dir, "step7_1.trr")
+    # trr_file = os.path.join(input_dir, "merged_trr", "merged_tot.trr")
+    trr_file = os.path.join(input_dir, "step7_1.trr")
     tpr_file = os.path.join(input_dir, "step7_1.tpr")
 
     univ = mda.Universe(tpr_file, trr_file)
@@ -78,33 +87,43 @@ def main(input_dir, lipid, cs_begs, cs_ends):
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
-    for (i, sn) in enumerate(sns):
-        cns = cs_ends[i] - cs_begs[i] + 1
-        scd_sn = np.zeros(cns)
+    upper_res, lower_res = get_splitted_bilayer_res(univ, lipid)
+    res_searched = (upper_res, lower_res, "resname {}".format(lipid))
+    res_labels   = ("upper", "lower", "tot")
 
-        cs  = univ.select_atoms(selstr_carbons(lipid, cs_begs[i], cs_ends[i], sn))
-        h0s = univ.select_atoms(selstr_hydrogens(univ, lipid, cs_begs[i], cs_ends[i], sn, 0))
-        h1s = univ.select_atoms(selstr_hydrogens(univ, lipid, cs_begs[i], cs_ends[i], sn, 1))
-        h2s = univ.select_atoms(selstr_hydrogens(univ, lipid, cs_begs[i], cs_ends[i], sn, 2))
+    for res, label in zip(res_searched, res_labels):
+        for i, sn in enumerate(sns):
+            cns = cs_ends[i] - cs_begs[i] + 1
+            scd_sn = np.zeros(cns)
 
-        for _ in univ.trajectory:
-            box = univ.dimensions[0:3]
-            scd_sn += calc_scd(cs, h0s, cns, box)
-            scd_sn += calc_scd(cs, h1s, cns, box)
-            scd_end = calc_scd(cs, h2s, cns, box)
-            scd_end[0:-1] = 0.0
-            scd_sn += scd_end
+            cs_selstr  = selstr_carbons(cs_begs[i], cs_ends[i], sn)
+            h0s_selstr = selstr_hydrogens(univ, lipid, cs_begs[i], cs_ends[i], sn, 0)
+            h1s_selstr = selstr_hydrogens(univ, lipid, cs_begs[i], cs_ends[i], sn, 1)
+            h2s_selstr = selstr_hydrogens(univ, lipid, cs_begs[i], cs_ends[i], sn, 2)
 
-        weight = np.full([cns], 1.0 / 2.0)
-        weight[-1] = 1.0 / 3.0
-        weight = weight / float(len(univ.trajectory))
-        scd_sn *= weight
+            cs  = univ.select_atoms("({}) and ({})".format(res, cs_selstr))
+            h0s = univ.select_atoms("({}) and ({})".format(res, h0s_selstr))
+            h1s = univ.select_atoms("({}) and ({})".format(res, h1s_selstr))
+            h2s = univ.select_atoms("({}) and ({})".format(res, h2s_selstr))
 
-        out_file = os.path.join(out_dir, "{}_{}_scd.txt".format(lipid, sn))
-        sn_idxes = range(cs_begs[i], cs_ends[i] + 1)
-        with open(out_file, "w") as f:
-            for (sn_idx, scd) in zip(sn_idxes, scd_sn):
-                f.write("{:d} {:.10g}\n".format(sn_idx, scd))
+            for _ in univ.trajectory:
+                box = univ.dimensions[0:3]
+                scd_sn += calc_scd(cs, h0s, cns, box)
+                scd_sn += calc_scd(cs, h1s, cns, box)
+                scd_end = calc_scd(cs, h2s, cns, box)
+                scd_end[0:-1] = 0.0
+                scd_sn += scd_end
+
+            weight = np.full([cns], 1.0 / 2.0)
+            weight[-1] = 1.0 / 3.0 # ASSUME: scd[-1] is a methyl group.
+            weight = weight / float(len(univ.trajectory))
+            scd_sn *= weight
+
+            out_file = os.path.join(out_dir, "{}_{}_{}_scd.txt".format(lipid, sn, label))
+            sn_idxes = range(cs_begs[i], cs_ends[i] + 1)
+            with open(out_file, "w") as f:
+                for (sn_idx, scd) in zip(sn_idxes, scd_sn):
+                    f.write("{:d} {:.10g}\n".format(sn_idx, scd))
 
 
 if __name__ == "__main__":
