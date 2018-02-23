@@ -19,11 +19,16 @@ def get_bilayer_center(univ):
     return lipid_atoms.center_of_geometry()[2]
 
 
-def get_splitted_bilayer_res(univ, lipid):
+def get_bilayer_res(univ, lipid):
     bcenter = get_bilayer_center(univ)
     upper_res_ids = ["resid " + str(rid) for rid in univ.select_atoms("resname {} and name P and prop z >  {}".format(lipid, bcenter)).resids]
     lower_res_ids = ["resid " + str(rid) for rid in univ.select_atoms("resname {} and name P and prop z <= {}".format(lipid, bcenter)).resids]
-    return " or ".join(upper_res_ids), " or ".join(lower_res_ids)
+    res_all = "resname {}".format(lipid)
+
+    if lower_res_ids == []:
+        return (("upper",), (" or ".join(upper_res_ids),))
+    else:
+        return (("upper", "lower", "tot"), (" or ".join(upper_res_ids), " or ".join(lower_res_ids), res_all))
 
 
 def calc_scd(cs, hs, cn, box):
@@ -87,10 +92,7 @@ def main(input_dir, lipid, cs_begs, cs_ends):
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
-    upper_res, lower_res = get_splitted_bilayer_res(univ, lipid)
-    res_searched = (upper_res, lower_res, "resname {}".format(lipid))
-    res_labels   = ("upper", "lower", "tot")
-
+    res_labels, res_searched = get_bilayer_res(univ, lipid)
     for res, label in zip(res_searched, res_labels):
         for i, sn in enumerate(sns):
             cns = cs_ends[i] - cs_begs[i] + 1
