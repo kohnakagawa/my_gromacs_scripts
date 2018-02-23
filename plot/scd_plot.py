@@ -26,18 +26,16 @@ def main(input_dir, lipid):
     scd_sn1 = np.loadtxt(os.path.join(input_dir, "{}_sn1_scd.txt".format(lipid)))
     scd_sn2 = np.loadtxt(os.path.join(input_dir, "{}_sn2_scd.txt".format(lipid)))
 
-    # set_ticks(
-    #     (3, 32, 4),
-    #     (0.03, 0.25, 0.05)
-    # )
+    c_numbers = np.append(scd_sn1[:,0], scd_sn2[:,0])
+    c_number_min = np.min(c_numbers)
+    c_number_max = np.max(c_numbers)
     set_ticks(
-        (3, 18, 2),
+        (c_number_min, c_number_max, 2),
         (0.03, 0.25, 0.05)
     )
 
-    # plt.xlim(2, 33)
-    plt.xlim(2, 19)
-    plt.ylim(0.0, 0.24)
+    plt.xlim(c_number_min - 1, c_number_max + 1)
+    plt.ylim(0.0, 0.27)
 
     plt.plot(scd_sn1[:,0], np.abs(scd_sn1[:,1]), '-o', label="sn1")
     plt.plot(scd_sn2[:,0], np.abs(scd_sn2[:,1]), '-o', label="sn2")
