@@ -81,8 +81,8 @@ def selstr_hydrogens(univ, lipid, beg, end, sn, h_ind):
 
 
 def main(input_dir, lipid, cs_begs, cs_ends):
-    # trr_file = os.path.join(input_dir, "merged_trr", "merged_tot.trr")
-    trr_file = os.path.join(input_dir, "step7_1.trr")
+    trr_file = os.path.join(input_dir, "merged_trr", "merged_tot.trr")
+    # trr_file = os.path.join(input_dir, "step7_1.trr")
     tpr_file = os.path.join(input_dir, "step7_1.tpr")
 
     univ = mda.Universe(tpr_file, trr_file)
