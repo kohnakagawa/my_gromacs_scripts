@@ -93,12 +93,13 @@ EOF
     wait
 }
 
-lipid_cs=("${SN1_N}" "${SN2_N}")
-make_carbon_ndx "(${lipid_cs[*]})" "${LIPID}" "TSPC" true true
-calc_density "(${lipid_cs[*]})" "${LIPID}" true true
-
 if ${TSPC_EXIST}; then
     tspc_cs=(32 18)
     make_carbon_ndx "(${tspc_cs[*]})" "TSPC" "${LIPID}" true "${TSPC_SYM}"
     calc_density "(${tspc_cs[*]})" "TSPC" true "${TSPC_SYM}"
 fi
+
+lipid_cs=("${SN1_N}" "${SN2_N}")
+make_carbon_ndx "(${lipid_cs[*]})" "${LIPID}" "TSPC" true true
+calc_density "(${lipid_cs[*]})" "${LIPID}" true true
+
