@@ -46,6 +46,13 @@ del 1
 ${SELSTR}
 q
 EOF
+    ./splitleafs/splitleafs.py --atom P --keep-residue -- "${IN_DIR}/step7_1.gro" >> ${INDEX}
+    gmx make_ndx -n "${INDEX}" -o "${INDEX}" <<EOF
+2 & 1
+3 & 1
+del 2-3
+q
+EOF
 }
 
 if ${TSPC_EXIST}; then
@@ -56,7 +63,18 @@ fi
 lipid_cs=("${SN1_N}" "${SN2_N}")
 append_selstr "(${lipid_cs[*]})"
 make_carbon_ndx
-gmx density -f "${IN_DIR}/merged_trr/merged_tot.trr" -s "${IN_DIR}/step7_1.tpr" -relative -center -nosymm -dens number -d Z -n "${INDEX}" -sl 400 -o "${OUT_FILE}" <<EOF
+
+gmx density -f "${IN_DIR}/merged_trr/merged_tot.trr" -s "${IN_DIR}/step7_1.tpr" -relative -center -nosymm -dens number -d Z -n "${INDEX}" -sl 400 -o "${OUT_DIR}/carbon_tot.xvg" <<EOF
 0
 1
+EOF
+
+gmx density -f "${IN_DIR}/merged_trr/merged_tot.trr" -s "${IN_DIR}/step7_1.tpr" -relative -center -nosymm -dens number -d Z -n "${INDEX}" -sl 400 -o "${OUT_DIR}/carbon_tot_lo.xvg" <<EOF
+0
+2
+EOF
+
+gmx density -f "${IN_DIR}/merged_trr/merged_tot.trr" -s "${IN_DIR}/step7_1.tpr" -relative -center -nosymm -dens number -d Z -n "${INDEX}" -sl 400 -o "${OUT_DIR}/carbon_tot_up.xvg" <<EOF
+0
+3
 EOF
