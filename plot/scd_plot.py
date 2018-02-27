@@ -19,30 +19,43 @@ def set_ticks(x_range, y_range):
     plt.yticks(np.arange(*y_range))
 
 
+def exist_lower_leaflet(input_dir, lipid):
+    in_file = os.path.join(input_dir, "{}_sn1_lower_scd.txt".format(lipid))
+    return os.path.exists(in_file)
+
+
 def main(input_dir, lipid):
     set_font()
     set_label("Carbon", r"$|S_{\mathrm{CD}}|$")
 
-    scd_sn1 = np.loadtxt(os.path.join(input_dir, "{}_sn1_scd.txt".format(lipid)))
-    scd_sn2 = np.loadtxt(os.path.join(input_dir, "{}_sn2_scd.txt".format(lipid)))
+    exist_lleaf = exist_lower_leaflet(input_dir, lipid)
 
-    c_numbers = np.append(scd_sn1[:,0], scd_sn2[:,0])
+    scd_sn1_u = np.loadtxt(os.path.join(input_dir, "{}_sn1_upper_scd.txt".format(lipid)))
+    scd_sn2_u = np.loadtxt(os.path.join(input_dir, "{}_sn2_upper_scd.txt".format(lipid)))
+    if exist_lleaf:
+        scd_sn1_l = np.loadtxt(os.path.join(input_dir, "{}_sn1_lower_scd.txt".format(lipid)))
+        scd_sn2_l = np.loadtxt(os.path.join(input_dir, "{}_sn2_lower_scd.txt".format(lipid)))
+
+    c_numbers = np.append(scd_sn1_u[:,0], scd_sn2_u[:,0])
     c_number_min = np.min(c_numbers)
     c_number_max = np.max(c_numbers)
     set_ticks(
         (c_number_min, c_number_max, 2),
-        (0.03, 0.25, 0.05)
+        (0.03, 0.35, 0.05)
     )
 
     plt.xlim(c_number_min - 1, c_number_max + 1)
-    plt.ylim(0.0, 0.27)
+    plt.ylim(0.0, 0.31)
 
-    plt.plot(scd_sn1[:,0], np.abs(scd_sn1[:,1]), '-o', label="sn1")
-    plt.plot(scd_sn2[:,0], np.abs(scd_sn2[:,1]), '-o', label="sn2")
+    plt.plot(scd_sn1_u[:,0], np.abs(scd_sn1_u[:,1]), '-o', label="sn1 upper")
+    plt.plot(scd_sn2_u[:,0], np.abs(scd_sn2_u[:,1]), '-o', label="sn2 upper")
+    if exist_lleaf:
+        plt.plot(scd_sn1_l[:,0], np.abs(scd_sn1_l[:,1]), '-o', label="sn1 lower")
+        plt.plot(scd_sn2_l[:,0], np.abs(scd_sn2_l[:,1]), '-o', label="sn2 lower")
 
     plt.tight_layout()
 
-    plt.legend()
+    plt.legend(fontsize=16)
 
     plt.savefig(os.path.join(input_dir, "{}_scd.eps".format(lipid)))
 
