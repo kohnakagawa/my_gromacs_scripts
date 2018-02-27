@@ -3,7 +3,7 @@
 export GMX_MAXBACKUP=-1
 
 function print_usage() {
-    echo "${0} root_dir lipid_name sn1_n sn2_n tspc_sym"
+    echo "${0} root_dir lipid_name sn1_n sn2_n tspc_sym tspc_exist"
     exit
 }
 
