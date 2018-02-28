@@ -7,7 +7,7 @@ function print_usage() {
     exit
 }
 
-if [ "$#" -ne 5 ]; then
+if [ "$#" -ne 1 ]; then
     print_usage "${0}"
 fi
 
