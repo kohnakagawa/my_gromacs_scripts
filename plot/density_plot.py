@@ -21,12 +21,25 @@ def set_ticks(x_range, y_range):
     plt.yticks(np.arange(*y_range))
 
 
-def plot_carbon_density(data_file, label_name, lipid_name, factor):
+def load_density_data(data_file):
     raw_data = np.loadtxt(data_file)
     z_cord = raw_data[:,0]
     density = raw_data[:,1]
+    return z_cord, density
+
+
+def plot_membrane_density(input_dir):
+    data_file = os.path.join(input_dir, "membrane.xvg")
+    z_cord, density = load_density_data(data_file)
+    density /= 80000
+    base = np.zeros(z_cord.shape[0])
+    plt.fill_between(z_cord, base, density, facecolor='gray', alpha=0.3)
+
+
+def plot_carbon_density(data_file, label_name, lipid_name, fact):
+    z_cord, density = load_density_data(data_file)
     if lipid_name != "TSPC":
-        density /= factor
+        density /= fact
     plt.plot(z_cord, density, '-', label=label_name)
 
 
@@ -40,6 +53,9 @@ def main(input_dir, legend_pos, lipids, carbons, poss, fact):
         for fname, cname in zip(fnames, carbon_names):
             plot_carbon_density(fname, cname, l, fact)
 
+    plot_membrane_density(input_dir)
+
+    plt.ylim(0.0, 0.012)
     plt.tight_layout()
     plt.legend(loc=legend_pos, fontsize=15)
     plt.savefig(os.path.join(input_dir, "{}_{}_density.eps".format("_".join(carbon_names), "_".join(poss))))
