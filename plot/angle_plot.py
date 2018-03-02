@@ -23,8 +23,8 @@ def main(input_dir):
     set_font()
     set_label(r"$\theta$ [degrees]", r"$P(\theta)$")
 
-    ang_mol = np.loadtxt(os.path.join(input_dir, "ang_mol_aver.xvg"))[:,1]
-    ang_z   = np.loadtxt(os.path.join(input_dir, "ang_z_aver.xvg"))[:,1]
+    ang_mol = np.loadtxt(os.path.join(input_dir, "angles_mol.xvg"))[:,1]
+    ang_z   = np.loadtxt(os.path.join(input_dir, "angles_z.xvg"))[:,1]
 
     hist_mol = np.histogram(ang_mol, bins=100, density=True)
     hist_z   = np.histogram(ang_z,   bins=100, density=True)
@@ -35,12 +35,12 @@ def main(input_dir):
     # )
 
     plt.xlim(0.0, 180.0)
-    plt.ylim(0.0, 0.01)
+    # plt.ylim(0.0, 0.01)
 
     hist_mol_cord = (hist_mol[1][1:] + hist_mol[1][:-1]) * 0.5
     hist_z_cord = (hist_z[1][1:] + hist_z[1][:-1]) * 0.5
 
-    plt.plot(hist_mol_cord, hist_mol[0], '-', label="C3-C18-C32")
+    # plt.plot(hist_mol_cord, hist_mol[0], '-', label="C3-C18-C32")
     plt.plot(hist_z_cord, hist_z[0], '-', label="Z-C18-C32")
 
     plt.tight_layout()

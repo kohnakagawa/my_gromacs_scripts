@@ -46,7 +46,7 @@ def main(input_dir, lipids):
         )
 
         plt.xlim(c_number_min - 1, c_number_max + 1)
-        plt.ylim(0.0, 0.25)
+        plt.ylim(0.0, 0.37)
 
         plt.plot(scd_sn1_u[:,0], np.abs(scd_sn1_u[:,1]), '-o', label="{} sn1 upper".format(lipid))
         plt.plot(scd_sn2_u[:,0], np.abs(scd_sn2_u[:,1]), '-o', label="{} sn2 upper".format(lipid))

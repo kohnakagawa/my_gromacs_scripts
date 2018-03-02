@@ -3,3 +3,7 @@
 - Some scripts for my research.
 * Requirements
 - [[https://github.com/MDAnalysis/mdanalysis][MDAnalysis]]
+* Notes
+- Install procedure of MDAnalysis is described [[https://www.mdanalysis.org/MDAnalysisTutorial/installation.html][here]].
+  - You can install MDAnalysis via miniconda package.
+  - This is the easiest way to use MDAnalysis in ISSP System B supercomputer.
